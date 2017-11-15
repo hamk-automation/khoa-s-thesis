@@ -1,0 +1,227 @@
+[
+    {
+        "id": "15057a2c.dafbae",
+        "type": "tab",
+        "label": "Flow 1"
+    },
+    {
+        "id": "aeb863cf.8debb",
+        "type": "inject",
+        "z": "15057a2c.dafbae",
+        "name": "Browse",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "x": 100,
+        "y": 40,
+        "wires": [
+            [
+                "b1e16cd5.23c138"
+            ]
+        ]
+    },
+    {
+        "id": "973723d1.81fb98",
+        "type": "function",
+        "z": "15057a2c.dafbae",
+        "name": "Decode & filter",
+        "func": "\nvar items = msg.payload;\nvar opcList = [];\nfor (var i=1; i<items.length-1; i++) {\n    var item = items[i];\n\tvar ref = item.item;\n\tvar nodeClass = ref.$nodeClass;\n\tvar typeDef = ref.typeDefinition;\n\tvar bname = ref.browseName;\n\tvar ns=bname.namespaceIndex;\n\tvar name=bname.name;\n\t// Select only want namespace variables\n\tif (ns==4) {\n\t    var newmsg={};\n\t\tnewmsg.topic = \"ns=\"+ns+\";s=GVL.stCaverionData.\"+name;\n\t\tnewmsg.payload=\"\";\n\t\tif (i==items.length -2) newmsg.complete=true;\n\t\topcList.push(newmsg);\n\t}\n}\nflow.set('opcList', opcList);\nvar newMsg = {};\nnewMsg.payload = opcList;\nreturn newMsg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 680,
+        "y": 40,
+        "wires": [
+            [
+                "b15d94ee.e4c54"
+            ]
+        ]
+    },
+    {
+        "id": "a27a7460.c0e16",
+        "type": "join",
+        "z": "15057a2c.dafbae",
+        "name": "",
+        "mode": "custom",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "",
+        "x": 950,
+        "y": 120,
+        "wires": [
+            [
+                "fffa2a34.470708"
+            ]
+        ]
+    },
+    {
+        "id": "fffa2a34.470708",
+        "type": "debug",
+        "z": "15057a2c.dafbae",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "payload",
+        "x": 950,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "b1e16cd5.23c138",
+        "type": "OpcUa-Browser",
+        "z": "15057a2c.dafbae",
+        "endpoint": "b25b8aab.47355",
+        "item": "",
+        "datatype": "",
+        "topic": "ns=4;s=GVL.stCaverionData",
+        "items": [],
+        "x": 470,
+        "y": 40,
+        "wires": [
+            [
+                "973723d1.81fb98"
+            ]
+        ]
+    },
+    {
+        "id": "418fc0a8.545d88",
+        "type": "OpcUa-Client",
+        "z": "15057a2c.dafbae",
+        "endpoint": "b25b8aab.47355",
+        "action": "read",
+        "time": 10,
+        "timeUnit": "s",
+        "name": "",
+        "x": 640,
+        "y": 120,
+        "wires": [
+            [
+                "974becf1.79d2b8"
+            ]
+        ]
+    },
+    {
+        "id": "c21dbd9b.795588",
+        "type": "inject",
+        "z": "15057a2c.dafbae",
+        "name": "Query",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 90,
+        "y": 120,
+        "wires": [
+            [
+                "ba2feb14.ab4538"
+            ]
+        ]
+    },
+    {
+        "id": "96e3c22e.7f48e",
+        "type": "function",
+        "z": "15057a2c.dafbae",
+        "name": "",
+        "func": "var newmsg = flow.get('opcList');\nif (newmsg !== null) {\n    for(var i = 0; i < newmsg.length; i++) node.send(newmsg[i]);\n}",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 470,
+        "y": 120,
+        "wires": [
+            [
+                "418fc0a8.545d88"
+            ]
+        ]
+    },
+    {
+        "id": "b15d94ee.e4c54",
+        "type": "debug",
+        "z": "15057a2c.dafbae",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "payload",
+        "x": 890,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "5ff267bb.ab6b9",
+        "type": "delay",
+        "z": "15057a2c.dafbae",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 280,
+        "y": 40,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ba2feb14.ab4538",
+        "type": "delay",
+        "z": "15057a2c.dafbae",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "0",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 280,
+        "y": 120,
+        "wires": [
+            [
+                "96e3c22e.7f48e"
+            ]
+        ]
+    },
+    {
+        "id": "974becf1.79d2b8",
+        "type": "function",
+        "z": "15057a2c.dafbae",
+        "name": "",
+        "func": "msg.topic = msg.topic.substring(msg.topic.lastIndexOf('.')+1);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 810,
+        "y": 120,
+        "wires": [
+            [
+                "a27a7460.c0e16"
+            ]
+        ]
+    },
+    {
+        "id": "b25b8aab.47355",
+        "type": "OpcUa-Endpoint",
+        "z": "",
+        "endpoint": "opc.tcp://localhost:4840",
+        "secpol": "None",
+        "secmode": "NONE",
+        "login": false
+    }
+]
